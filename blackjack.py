@@ -50,6 +50,9 @@ class BlackJack:
         self.player_hand_sum = self._get_sum(self.player_hand)
         self.player_aces += draw == 11
         
+        if self.player_hand_sum == 21:
+            self.stand()
+        
     def stand(self):
         self._dealer_turn()
         

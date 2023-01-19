@@ -15,6 +15,9 @@ class BlackJack:
     
     states = []
     
+    wins = 0
+    loses = 0
+    
     def start(self):
         
         self.deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 1]*4 # intialize the deck
@@ -33,6 +36,13 @@ class BlackJack:
         self.dealer_has_ace = any(card == 1 for card in self.dealer_hand)
         
         self.player_hand_sum = self._get_sum_player()
+        
+        if self.player_hand_sum == 21:
+            self.wins += 1
+            self.start()
+        
+        while self.player_hand_sum < 12:
+            self.hit()
         
     def _get_sum_player(self):
         
@@ -63,7 +73,8 @@ class BlackJack:
         self.player_hand_sum = self._get_sum_player()
         
         if self.player_hand_sum == 21:
-             self.stand()
+            self.wins += 1
+            self.stand()
         
     def stand(self):
         self._dealer_turn()
@@ -88,7 +99,7 @@ class BlackJack:
                 
                 p_sum = self._get_sum_player()
                 
-                if p_sum == 21: # 21 is a terminal state
+                if p_sum == 21 or p_sum < 12: # 21 is a terminal state
                     continue
                 
                 states.extend([(p_sum, self.has_ace, d_card) for d_card in np.unique(self.deck)])
@@ -96,10 +107,13 @@ class BlackJack:
     
     def get_reward(self):
         if self.player_hand_sum > 21: # we bust = we lose
+            self.loses += 1
             return -1
         if self.dealer_hand_sum > 21 or self.dealer_hand_sum < self.player_hand_sum: # dealer busted or we got more and didn't bust = we win
+            self.wins += 1
             return 1
         if self.dealer_hand_sum > self.player_hand_sum: # if we both don't bust and dealer got more = we lose
+            self.loses += 1
             return -1
         return 0 # draw
     

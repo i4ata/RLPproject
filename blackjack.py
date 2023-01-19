@@ -6,17 +6,18 @@ class BlackJack:
     
     player_hand_sum = 0
     player_hand = []
-    player_aces = 0
-    
+    has_ace = False
+        
     dealer_card = 0
     dealer_hand = []
     dealer_hand_sum = 0
+    dealer_has_ace = False
     
     states = []
     
     def start(self):
         
-        self.deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]*4 # intialize the deck
+        self.deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 1]*4 # intialize the deck
         np.random.shuffle(self.deck) # shuffle it
         
         draw = self.deck[:4] # get the top 4 cards
@@ -26,20 +27,31 @@ class BlackJack:
         self.dealer_hand = [draw[2], draw[3]]
         
         self.dealer_card = draw[2]
-        self.dealer_hand_sum = self._get_sum(self.dealer_hand)
+        self.dealer_hand_sum = self._get_sum_dealer()
         
-        self.player_aces = sum(card == 11 for card in self.player_hand)
-        self.player_hand_sum = self._get_sum(self.player_hand)
+        self.has_ace = any(card == 1 for card in self.player_hand)
+        self.dealer_has_ace = any(card == 1 for card in self.dealer_hand)
         
-    def _get_sum(self, hand):
+        self.player_hand_sum = self._get_sum_player()
         
-        sum_hand = sum(hand)
+    def _get_sum_player(self):
         
-        if sum_hand > 21:
-            for ace in filter(lambda x : x == 11, hand):
-                sum_hand -= 10
-                if sum_hand <= 21:
-                    break
+        sum_hand = sum(self.player_hand)
+        
+        if sum_hand <= 11 and any(card == 1 for card in self.player_hand):
+            sum_hand += 10
+            self.has_ace = True
+            
+        return sum_hand
+    
+    def _get_sum_dealer(self):
+        
+        sum_hand = sum(self.dealer_hand)
+        
+        if sum_hand <= 11 and any(card == 1 for card in self.dealer_hand):
+            sum_hand += 10
+            self.dealer_has_ace = True
+        
         return sum_hand
     
     def hit(self):
@@ -47,11 +59,11 @@ class BlackJack:
         draw = self.deck[0]
         self.player_hand.append(draw)
         self.deck = np.delete(self.deck, (0))
-        self.player_hand_sum = self._get_sum(self.player_hand)
-        self.player_aces += draw == 11
+        self.has_ace = self.has_ace or draw == 1
+        self.player_hand_sum = self._get_sum_player()
         
         if self.player_hand_sum == 21:
-            self.stand()
+             self.stand()
         
     def stand(self):
         self._dealer_turn()
@@ -60,19 +72,26 @@ class BlackJack:
         while self.dealer_hand_sum < 17:
             self.dealer_hand.append(self.deck[0])
             self.deck = np.delete(self.deck, (0))
-            self.dealer_hand_sum = self._get_sum(self.dealer_hand)
+            self.dealer_hand_sum = self._get_sum_dealer()
             
     def get_current_state(self):
-        return (self.player_hand_sum, self.player_aces, self.dealer_card)
+        return (self.player_hand_sum, self.has_ace, self.dealer_card)
     
     def _get_states(self):
         states = []
-        self.deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]*4
+        self.deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 1]*4
         for i in range(len(self.deck)):
             for j in range(i):
-                p_sum = self._get_sum([self.deck[i], self.deck[j]])
-                n_aces = (self.deck[i] == 11) + (self.deck[j] == 11)
-                states.extend([(p_sum, n_aces, d_card) for d_card in np.unique(self.deck)])
+                
+                self.player_hand = [self.deck[i], self.deck[j]]
+                self.has_ace = any(card == 1 for card in self.player_hand)
+                
+                p_sum = self._get_sum_player()
+                
+                if p_sum == 21: # 21 is a terminal state
+                    continue
+                
+                states.extend([(p_sum, self.has_ace, d_card) for d_card in np.unique(self.deck)])
         return list(set(states))
     
     def get_reward(self):

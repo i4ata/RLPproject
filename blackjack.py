@@ -16,7 +16,9 @@ class BlackJack:
     states = []
     
     wins = 0
-    loses = 0
+    losses = 0
+    draws = 0
+    blackjacks = 0 
     
     def start(self):
         
@@ -38,7 +40,7 @@ class BlackJack:
         self.player_hand_sum = self._get_sum_player()
         
         if self.player_hand_sum == 21:
-            self.wins += 1
+            self.blackjacks += 1
             self.start()
         
         while self.player_hand_sum < 12:
@@ -73,7 +75,6 @@ class BlackJack:
         self.player_hand_sum = self._get_sum_player()
         
         if self.player_hand_sum == 21:
-            self.wins += 1
             self.stand()
         
     def stand(self):
@@ -107,15 +108,16 @@ class BlackJack:
     
     def get_reward(self):
         if self.player_hand_sum > 21: # we bust = we lose
-            self.loses += 1
+            self.losses += 1
             return -1
         if self.dealer_hand_sum > 21 or self.dealer_hand_sum < self.player_hand_sum: # dealer busted or we got more and didn't bust = we win
             self.wins += 1
             return 1
         if self.dealer_hand_sum > self.player_hand_sum: # if we both don't bust and dealer got more = we lose
-            self.loses += 1
+            self.losses += 1
             return -1
-        return 0 # draw
+        self.draws += 1
+        return 0
     
     def __init__(self):
         print("Object created")

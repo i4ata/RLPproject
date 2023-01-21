@@ -57,6 +57,8 @@ class BlackJack:
         if sum_hand <= 11 and any(card == 1 for card in self.player_hand):
             sum_hand += 10
             self.has_ace = True
+        else:
+            self.has_ace = False
             
         return sum_hand
     
@@ -67,6 +69,8 @@ class BlackJack:
         if sum_hand <= 11 and any(card == 1 for card in self.dealer_hand):
             sum_hand += 10
             self.dealer_has_ace = True
+        else:
+            self.dealer_has_ace = False
         
         return sum_hand
     

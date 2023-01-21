@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class BlackJack:
     
@@ -22,6 +23,34 @@ class BlackJack:
     
     reward_multiplier = 1
     
+    def start_from_state(self, state):
+        
+        self.reward_multiplier = 1
+        self.deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 1]*4
+        np.random.shuffle(self.deck)
+        
+        self.dealer_card = state[2]
+        dealer_other = random.choice(self.deck)
+        self.dealer_hand = [state[2], dealer_other]
+        
+        self.deck.remove(dealer_other)
+        self.deck.remove(state[2])
+        
+        if state[1]:
+            self.player_hand = [1, state[0] - 11]
+            self.deck.remove(1)
+            self.deck.remove(state[0] - 11)
+        else:
+            c1 = random.randint(max(2, state[0] - 10), 10)
+            c2 = state[0] - c1
+            self.player_hand = [c1, c2]
+            self.deck.remove(c1)
+            self.deck.remove(c2)
+            
+        self.player_hand_sum = self._get_sum_player()
+        self.dealer_hand_sum = self._get_sum_dealer()
+        
+    
     def start(self):
         
         self.reward_multiplier = 1
@@ -37,9 +66,6 @@ class BlackJack:
         
         self.dealer_card = draw[2]
         self.dealer_hand_sum = self._get_sum_dealer()
-        
-        self.has_ace = any(card == 1 for card in self.player_hand)
-        self.dealer_has_ace = any(card == 1 for card in self.dealer_hand)
         
         self.player_hand_sum = self._get_sum_player()
         

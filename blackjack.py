@@ -24,7 +24,7 @@ class BlackJack:
     
     def start(self):
         
-        reward_multiplier = 1
+        self.reward_multiplier = 1
         
         self.deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 1]*4 # intialize the deck
         np.random.shuffle(self.deck) # shuffle it
@@ -74,7 +74,7 @@ class BlackJack:
         self.hit()
         if self.player_hand_sum < 21:
             self.stand()
-        reward_multiplier = 2
+        self.reward_multiplier = 2
     
     def hit(self):
         
@@ -119,13 +119,13 @@ class BlackJack:
     def get_reward(self):
         if self.player_hand_sum > 21: # we bust = we lose
             self.losses += 1
-            return -1 * reward_multiplier
+            return -1 * self.reward_multiplier
         if self.dealer_hand_sum > 21 or self.dealer_hand_sum < self.player_hand_sum: # dealer busted or we got more and didn't bust = we win
             self.wins += 1
-            return 1 * reward_multiplier
+            return 1 * self.reward_multiplier
         if self.dealer_hand_sum > self.player_hand_sum: # if we both don't bust and dealer got more = we lose
             self.losses += 1
-            return -1 * reward_multiplier
+            return -1 * self.reward_multiplier
         self.draws += 1
         return 0
     

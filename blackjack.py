@@ -235,6 +235,7 @@ class BlackJack:
         print("Profit: " + str(sum(rewards)))
         double_won, double_lost = len(list(filter(lambda x: x == 2, rewards))), len(list(filter(lambda x: x == -2, rewards)))
         print("Wins after doubling: " + str(double_won) + "; Losses after doubling: " + str(double_lost))
+        return rewards
 
     # constructor: creates the states
     def __init__(self):

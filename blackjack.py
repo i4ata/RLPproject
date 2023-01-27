@@ -208,7 +208,7 @@ class BlackJack:
         print("Ws: " + str(self.wins) + "; Ls: " + str(self.losses) + "; Draws: " + str(self.draws))
               
     # test a deterministic policy "pi" for "iterations" of simulated games.
-    def test_policy(self, pi, iterations):
+    def test_policy(self, pi, iterations, verbose = 0):
         rewards = [0]*iterations
         self.wins = self.losses = self.draws = 0
         self.reward_multiplier = 1
@@ -231,12 +231,14 @@ class BlackJack:
                     self.double()
                     break
             rewards[i] = self.get_reward()
+        if verbose == 0:
+            return rewards
         self.get_stats()
         print("Profit: " + str(sum(rewards)))
         double_won, double_lost = len(list(filter(lambda x: x == 2, rewards))), len(list(filter(lambda x: x == -2, rewards)))
         print("Wins after doubling: " + str(double_won) + "; Losses after doubling: " + str(double_lost))
         return rewards
-
+    
     # constructor: creates the states
     def __init__(self):
         print("New BlackJack game created")
